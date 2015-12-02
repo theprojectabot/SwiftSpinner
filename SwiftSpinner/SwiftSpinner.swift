@@ -52,19 +52,22 @@ public class SwiftSpinner: UIView {
         
         outerCircleView.frame.size = frameSize
         
-        outerCircle.path = UIBezierPath(ovalInRect: CGRect(x: 0.0, y: 0.0, width: frameSize.width, height: frameSize.height)).CGPath
-        outerCircle.lineWidth = 8.0
+        outerCircle.path = UIBezierPath(arcCenter: CGPointMake(CGRectGetMidX(outerCircleView.frame), CGRectGetMidY(outerCircleView.frame)), radius: outerCircleView.frame.size.width/2.0, startAngle: (CGFloat(-M_PI)/2.0), endAngle: (CGFloat(3*M_PI)/2.0), clockwise: true).CGPath;
+        
+        //outerCircle.path = UIBezierPath(ovalInRect: CGRect(x: 0.0, y: 0.0, width: frameSize.width, height: frameSize.height)).CGPath
+        outerCircle.lineWidth = 6.0
         outerCircle.strokeStart = 0.0
         outerCircle.strokeEnd = 0.45
         outerCircle.lineCap = kCALineCapRound
         outerCircle.fillColor = UIColor.clearColor().CGColor
-        outerCircle.strokeColor = UIColor.whiteColor().CGColor
+        outerCircle.strokeColor = UIColor.yellowColor().CGColor
         outerCircleView.layer.addSublayer(outerCircle)
         
         outerCircle.strokeStart = 0.0
         outerCircle.strokeEnd = 1.0
         
-        vibrancyView.contentView.addSubview(outerCircleView)
+        //vibrancyView.contentView.addSubview(outerCircleView)
+        blurView.contentView.addSubview(outerCircleView)
         
         innerCircleView.frame.size = frameSize
         
@@ -75,7 +78,7 @@ public class SwiftSpinner: UIView {
         innerCircle.strokeEnd = 0.9
         innerCircle.lineCap = kCALineCapRound
         innerCircle.fillColor = UIColor.clearColor().CGColor
-        innerCircle.strokeColor = UIColor.grayColor().CGColor
+        innerCircle.strokeColor = UIColor.yellowColor().CGColor
         innerCircleView.layer.addSublayer(innerCircle)
         
         innerCircle.strokeStart = 0.0
@@ -84,6 +87,9 @@ public class SwiftSpinner: UIView {
         vibrancyView.contentView.addSubview(innerCircleView)
         
         userInteractionEnabled = true
+        
+        innerCircleView.hidden = true
+        
     }
     
     public override func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
@@ -254,12 +260,12 @@ public class SwiftSpinner: UIView {
             // update UI
             if animating {
                 self.outerCircle.strokeStart = 0.0
-                self.outerCircle.strokeEnd = 0.45
+                self.outerCircle.strokeEnd = 0.0
                 self.innerCircle.strokeStart = 0.5
                 self.innerCircle.strokeEnd = 0.9
             } else {
                 self.outerCircle.strokeStart = 0.0
-                self.outerCircle.strokeEnd = 1.0
+                self.outerCircle.strokeEnd = 0.0
                 self.innerCircle.strokeStart = 0.0
                 self.innerCircle.strokeEnd = 1.0
             }
@@ -318,7 +324,7 @@ public class SwiftSpinner: UIView {
     private var vibrancyView: UIVisualEffectView!
     
     var defaultTitleFont = UIFont(name: "HelveticaNeue", size: 22.0)!
-    let frameSize = CGSize(width: 200.0, height: 200.0)
+    let frameSize = CGSize(width: 50.0, height: 50.0)
     
     private lazy var outerCircleView = UIView()
     private lazy var innerCircleView = UIView()
@@ -345,6 +351,7 @@ public class SwiftSpinner: UIView {
         let randomRotation = Double(Float(arc4random()) /  Float(UInt32.max)) * M_PI_4 + M_PI_4
         
         //outer circle
+        /*
         UIView.animateWithDuration(duration, delay: 0.0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.0, options: [], animations: {
             self.currentOuterRotation -= CGFloat(randomRotation)
             self.outerCircleView.transform = CGAffineTransformMakeRotation(self.currentOuterRotation)
@@ -355,7 +362,13 @@ public class SwiftSpinner: UIView {
                         self.spinOuter()
                     }
                 })
-        })
+        })*/
+        let pathAnim = CABasicAnimation(keyPath: "strokeEnd")
+        pathAnim.duration = 1.0;
+        pathAnim.fromValue = 0;
+        pathAnim.toValue = 1;
+        pathAnim.repeatCount = HUGE
+        self.outerCircle.addAnimation(pathAnim, forKey: "strokeChanges")
     }
     
     private func spinInner() {
